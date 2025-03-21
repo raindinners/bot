@@ -1,8 +1,0 @@
-from __future__ import annotations
-
-from aiogram.filters.callback_data import CallbackData
-
-
-class ActionCallbackData(CallbackData, prefix="action"):
-    inline_message_id: str
-    action: int

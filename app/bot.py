@@ -46,11 +46,11 @@ async def set_default_administrator_rights(bot: Bot) -> None:
 
 
 async def setup_bot_name(bot: Bot) -> None:
-    await bot.set_my_name(name="Chilling")
+    await bot.set_my_name(name="RainDinners")
 
 
 async def set_short_description(bot: Bot) -> None:
-    await bot.set_my_short_description(short_description="Do you wanna play?")
+    await bot.set_my_short_description(short_description="Play Poker and other games via me!")
 
 
 async def setup_bot(bot: Bot) -> None:

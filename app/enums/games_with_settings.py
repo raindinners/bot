@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from ._enum import Enum
+from enum import Enum
 
 
-class Games(str, Enum):
+class GamesWithSettings(str, Enum):
     POKER = "Poker"

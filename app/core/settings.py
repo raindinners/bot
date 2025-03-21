@@ -27,9 +27,9 @@ class BotSettings(BaseSettings):
 bot_settings = BotSettings()
 
 
-class FSMSettings(BaseSettings):
-    FSM_HOSTNAME: str
-    FSM_PORT: int
+class ServerSettings(BaseSettings):
+    URL: str = "https://localhost:5173"
+    START_PARAMETER_NAME: str = "startapp"
 
 
-fsm_settings = FSMSettings()
+server_settings = ServerSettings()

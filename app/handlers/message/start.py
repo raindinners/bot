@@ -11,5 +11,5 @@ router = Router()
 
 @router.message(CommandStart(), StateFilter(any_state))
 async def start_handler(message: Message, state: FSMContext) -> None:
-    await message.answer(text="Hello! With my help you can play Poker!")
+    await message.answer(text="Hello! With my help you can in games!")
     await state.clear()

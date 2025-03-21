@@ -1,17 +1,5 @@
 from __future__ import annotations
 
-from .action import Action
-from .game_state import GameState
-from .games import Games
-from .position import Position
-from .round import Round
-from .state import State
+from .games_with_settings import GamesWithSettings
 
-__all__ = (
-    "Action",
-    "Games",
-    "GameState",
-    "Position",
-    "Round",
-    "State",
-)
+__all__ = ("GamesWithSettings",)
