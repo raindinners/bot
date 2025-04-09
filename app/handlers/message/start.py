@@ -43,7 +43,6 @@ async def start_deep_link_handler(
     joined_player = None
     player_id = get_player_id(user=message.from_user)
     engine.add_player(stack=BB_BET * BB_MULT, id=player_id)
-    engine.add_player(stack=BB_BET * BB_MULT, id="2")
     for player in engine.players:
         if player.id == player_id:
             joined_player = player

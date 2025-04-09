@@ -104,14 +104,14 @@ async def winners(bot: Bot, poker: Poker) -> None:
 
     with suppress(Exception):
         await send_winners_message_broadcast(
-        bot=bot,
-        poker=poker,
-        response=(
-            [(str(result), stack) for result, stack in engine.pay(cards=poker.cards)]
-            if engine.terminal_state
-            else engine.pay_noshowdown()
-        ),
-    )
+            bot=bot,
+            poker=poker,
+            response=(
+                [(str(result), stack) for result, stack in engine.pay(cards=poker.cards)]
+                if engine.terminal_state
+                else engine.pay_noshowdown()
+            ),
+        )
     poker.engine = EngineRake01.from_original(value=engine)
     poker.winners_time = time.time() + POKER_WINNERS_TIME
 

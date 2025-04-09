@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import time
-from contextlib import suppress
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from aiogram import Bot
@@ -19,7 +18,6 @@ from callback_data import (
     SelectActionCallbackData,
 )
 from core.poker.schema import Poker
-from logger import logger
 
 
 async def send_join_message(bot: Bot, inline_message_id: str, poker_id: str) -> None:
@@ -49,8 +47,7 @@ async def send_loading_state_message_broadcast(
     start_at: Optional[float] = None,
 ) -> None:
     for player in players:
-        with suppress(Exception):
-            await bot.edit_message_text(
+        await bot.edit_message_text(
             **(
                 Bold("Poker stopped.").as_kwargs()
                 if is_stopped
