@@ -6,10 +6,8 @@ from aiogram import F, Router
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-from pokerengine import schema
 from pokerengine.engine import EngineRake01, PlayerAction
 from pokerengine.enums import Action, Position
-from redis.asyncio import Redis
 
 from callback_data import ActionsCallbackData
 from core.poker.schema import Poker
@@ -30,7 +28,7 @@ router = Router()
 async def actions_handler(
     callback_query: CallbackQuery,
     state: FSMContext,
-    data: Dict[str, Any],
+    state_data: Dict[str, Any],
     engine: EngineRake01,
 ) -> None:
     if engine.terminal_state or engine.showdown:
@@ -39,7 +37,7 @@ async def actions_handler(
     await send_actions_state_message(
         bot=callback_query.bot,
         engine=engine,
-        selected_action=data.get("selected_action", None),  # noqa
+        selected_action=state_data.get("selected_action", None),  # noqa
     )
     await state.set_state(state=States.ACTIONS)
 
@@ -54,14 +52,13 @@ async def actions_handler(
 async def actions_done_handler(
     callback_query: CallbackQuery,
     state: FSMContext,
-    redis: Redis,
-    data: Dict[str, Any],
+    state_data: Dict[str, Any],
     poker: Poker,
     engine: EngineRake01,
 ) -> None:
     player = engine.current_player
 
-    selected_action = data.get("selected_action", None)
+    selected_action = state_data.get("selected_action", None)
     if selected_action is not None:
         engine.execute(
             player_action=PlayerAction(
@@ -70,8 +67,6 @@ async def actions_done_handler(
                 amount=int(selected_action["amount"]),
             )
         )
-        poker.engine = schema.EngineRake01.from_original(value=engine)
-        await redis.set(name=poker.id, value=poker.model_dump_json())
     else:
         await send_main_state_message(
             bot=callback_query.bot, engine=engine, cards=poker.cards, player=player

@@ -3,6 +3,7 @@ from __future__ import annotations
 from aiogram import Router
 from aiogram.filters import StateFilter
 from aiogram.types import CallbackQuery
+from pokerengine.pretty_string import PrettyCard
 
 from callback_data import CardsCallbackData
 from core.poker.schema import Poker
@@ -17,6 +18,11 @@ router = Router()
     StateFilter(States.MAIN),
     PokerFilter(),
 )
-async def cards_handler(callback_query: CallbackQuery, poker: Poker) -> None:
+async def cards_handler(
+    callback_query: CallbackQuery, poker: Poker, pretty_card: PrettyCard
+) -> None:
     hand = poker.cards.hands[poker.engine.current.value]
-    await callback_query.answer(text=f"{hand.front.string} {hand.back.string}", show_alert=True)
+    await callback_query.answer(
+        text=f"{pretty_card.as_pretty_string(value=hand.front)} {pretty_card.as_pretty_string(value=hand.back)}",
+        show_alert=True,
+    )

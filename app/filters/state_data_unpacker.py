@@ -11,4 +11,4 @@ class StateDataUnpackerFilter(Filter):
     async def __call__(
         self, obj: TelegramObject, state: FSMContext
     ) -> Union[bool, Dict[str, Any]]:
-        return {"data": await state.get_data()}
+        return {"state_data": await state.get_data()}

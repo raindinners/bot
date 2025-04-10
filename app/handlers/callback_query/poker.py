@@ -7,6 +7,7 @@ from aiogram.types import CallbackQuery
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from pokerengine import schema
 from pokerengine.engine import EngineRake01, EngineTraits
+from pokerengine.pretty_string import PrettyCard
 from redis.asyncio import Redis
 
 from callback_data import PokerCallbackData
@@ -21,7 +22,10 @@ router = Router()
 
 @router.callback_query(PokerCallbackData.filter(), StateFilter(any_state))
 async def poker_handler(
-    callback_query: CallbackQuery, redis: Redis, scheduler: AsyncIOScheduler
+    callback_query: CallbackQuery,
+    redis: Redis,
+    scheduler: AsyncIOScheduler,
+    pretty_card: PrettyCard,
 ) -> None:
     engine = EngineRake01(
         engine_traits=EngineTraits(
@@ -38,6 +42,7 @@ async def poker_handler(
             "bot": callback_query.bot,
             "poker": poker,
             "redis": redis,
+            "pretty_card": pretty_card,
         },
         trigger="interval",
         id=poker.id,

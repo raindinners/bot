@@ -10,6 +10,7 @@ from aiogram.utils.formatting import Bold, Text, as_list, as_section
 from pokerengine import schema
 from pokerengine.engine import EngineRake01, Player
 from pokerengine.enums import Action, Round
+from pokerengine.pretty_string import PrettyCard
 
 from callback_data import (
     ActionsCallbackData,
@@ -59,7 +60,7 @@ async def send_loading_state_message_broadcast(
 
 
 async def send_main_state_message(
-    bot: Bot, engine: EngineRake01, cards: schema.Cards, player: Player
+    bot: Bot, engine: EngineRake01, cards: schema.Cards, player: Player, pretty_card: PrettyCard
 ) -> None:
     await bot.edit_message_text(
         **as_list(
@@ -95,7 +96,7 @@ async def send_main_state_message(
                 as_list(
                     *(
                         [
-                            Text(card.string)
+                            Text(pretty_card.as_pretty_string(value=card))
                             for card in cards.board[
                                 : (
                                     engine.round.value + 2
@@ -230,6 +231,7 @@ async def send_pin_state_message(bot: Bot, engine: EngineRake01) -> None:
 async def send_winners_message_broadcast(
     bot: Bot,
     poker: Poker,
+    pretty_card: PrettyCard,
     response: Union[List[Tuple[str, int]], List[int]],
 ) -> None:
     texts = []
@@ -246,9 +248,32 @@ async def send_winners_message_broadcast(
         player = poker.engine.players[index]  # noqa
         texts.append(Text(f"Player {player.id} got {chips} chips and {result}"))
 
+    engine = poker.engine.to_original()
     for player in poker.engine.players:
         await bot.edit_message_text(
-            **as_list(*texts).as_kwargs(),
+            **as_list(
+                *texts,
+                "\n",
+                as_section(
+                    "Board",
+                    as_list(
+                        *(
+                            [
+                                Text(pretty_card.as_pretty_string(value=card))
+                                for card in poker.cards.board[
+                                    : (
+                                        engine.round.value + 2
+                                        if engine.round != Round.PREFLOP
+                                        else Round.PREFLOP.value
+                                    )
+                                ]
+                            ]
+                            or [Text("Currently not present")]
+                        ),
+                        sep=" ",
+                    ),
+                ),
+            ).as_kwargs(replace_parse_mode=False),
             chat_id=str(player.parameters["chat_id"]),
             message_id=int(player.parameters["message_id"]),  # noqa
         )

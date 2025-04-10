@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import random
 import time
-from contextlib import suppress
 
 from aiogram import Bot
 from aiogram.fsm.context import FSMContext
 from pokerengine.constants import MAX_PLAYERS, MIN_PLAYERS
 from pokerengine.engine import Player
+from pokerengine.pretty_string import PrettyCard
 from pokerengine.schema import EngineRake01
 from redis.asyncio import Redis
 
@@ -28,33 +28,49 @@ from states import States
 from .schema import Poker
 
 
-async def poker_main_job_core(bot: Bot, poker: Poker) -> None:
+async def poker_main_job_core(bot: Bot, poker: Poker, pretty_card: PrettyCard) -> None:
     await start(bot=bot, poker=poker)
-    await winners(bot=bot, poker=poker)
+    await winners(bot=bot, poker=poker, pretty_card=pretty_card)
 
 
-async def poker_main_job(bot: Bot, poker: Poker, redis: Redis) -> None:
+async def poker_main_job(
+    bot: Bot,
+    poker: Poker,
+    redis: Redis,
+    pretty_card: PrettyCard,
+) -> None:
     _poker = Poker.model_validate_json(await redis.get(name=poker.id))
 
     try:
-        await poker_main_job_core(bot=bot, poker=_poker)
+        await poker_main_job_core(bot=bot, poker=_poker, pretty_card=pretty_card)
     except Exception as exc:
         logger.exception(exc)
 
     await redis.set(name=poker.id, value=_poker.model_dump_json())
 
 
-async def poker_chat_job_core(bot: Bot, poker: Poker, player: Player, state: FSMContext) -> None:
-    await poker_chat_updater(bot=bot, poker=poker, player=player, state=state)
+async def poker_chat_job_core(
+    bot: Bot, poker: Poker, player: Player, state: FSMContext, pretty_card: PrettyCard
+) -> None:
+    await poker_chat_updater(
+        bot=bot, poker=poker, player=player, state=state, pretty_card=pretty_card
+    )
 
 
 async def poker_chat_job(
-    bot: Bot, poker: Poker, player: Player, state: FSMContext, redis: Redis
+    bot: Bot,
+    poker: Poker,
+    player: Player,
+    state: FSMContext,
+    redis: Redis,
+    pretty_card: PrettyCard,
 ) -> None:
     _poker = Poker.model_validate_json(await redis.get(name=poker.id))
 
     try:
-        await poker_chat_job_core(bot=bot, poker=_poker, player=player, state=state)
+        await poker_chat_job_core(
+            bot=bot, poker=_poker, player=player, state=state, pretty_card=pretty_card
+        )
     except Exception as exc:
         logger.exception(exc)
 
@@ -96,27 +112,35 @@ async def start(bot: Bot, poker: Poker) -> None:
     poker.start()
 
 
-async def winners(bot: Bot, poker: Poker) -> None:
+async def winners(
+    bot: Bot,
+    poker: Poker,
+    pretty_card: PrettyCard,
+) -> None:
     engine = poker.engine.to_original()
-    if not poker.started or not engine.showdown:
+    if not poker.started or not engine.showdown or poker.winners_time:
         logger.debug("Skipping winners: wrong state")
         return
 
-    with suppress(Exception):
-        await send_winners_message_broadcast(
-            bot=bot,
-            poker=poker,
-            response=(
-                [(str(result), stack) for result, stack in engine.pay(cards=poker.cards)]
-                if engine.terminal_state
-                else engine.pay_noshowdown()
-            ),
-        )
+    await send_winners_message_broadcast(
+        bot=bot,
+        poker=poker,
+        response=(
+            [(str(result), stack) for result, stack in engine.pay(cards=poker.cards.to_original())]
+            if engine.terminal_state
+            else engine.pay_noshowdown()
+        ),
+        pretty_card=pretty_card,
+    )
+
+    poker.started = False
     poker.engine = EngineRake01.from_original(value=engine)
     poker.winners_time = time.time() + POKER_WINNERS_TIME
 
 
-async def poker_chat_updater(bot: Bot, poker: Poker, player: Player, state: FSMContext) -> None:
+async def poker_chat_updater(
+    bot: Bot, poker: Poker, player: Player, state: FSMContext, pretty_card: PrettyCard
+) -> None:
     engine = poker.engine.to_original()
     if not poker.started or engine.showdown:
         player.parameters = {**player.parameters, "last_round": None, "last_player_id": None}
@@ -142,4 +166,6 @@ async def poker_chat_updater(bot: Bot, poker: Poker, player: Player, state: FSMC
             "last_round": engine.round.value,
             "last_player_id": engine.current_player.id,
         }
-        await send_main_state_message(bot=bot, engine=engine, cards=poker.cards, player=player)
+        await send_main_state_message(
+            bot=bot, engine=engine, cards=poker.cards, player=player, pretty_card=pretty_card
+        )

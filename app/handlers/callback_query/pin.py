@@ -27,10 +27,10 @@ async def pin_handler(
     callback_query: CallbackQuery,
     callback_data: PinCallbackData,
     state: FSMContext,
-    data: Dict[str, Any],
+    state_data: Dict[str, Any],
     engine: EngineRake01,
 ) -> None:
-    selected_action = data["selected_action"]
+    selected_action = state_data["selected_action"]
 
     match callback_data.action:
         case "add":

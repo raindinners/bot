@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from aiogram import Router
-from aiogram.filters import CommandObject, CommandStart, StateFilter
+from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
 from aiogram.types import (
@@ -12,11 +12,13 @@ from aiogram.types import (
 )
 from aiogram.utils.formatting import Bold
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from pokerengine import schema
+from pokerengine.engine import EngineRake01
+from pokerengine.pretty_string import PrettyCard
 from redis.asyncio import Redis
 
 from core.poker.core import poker_chat_job
 from core.poker.schema import Poker
+from filters import PokerFilter
 from metadata import BB_BET, BB_MULT
 from states import States
 from utils.id import get_player_id
@@ -25,46 +27,42 @@ from utils.inline_query import get_id
 router = Router()
 
 
-@router.message(CommandStart(deep_link=True), StateFilter(default_state))
+@router.message(
+    CommandStart(deep_link=True),
+    StateFilter(default_state),
+    PokerFilter(),
+)
 async def start_deep_link_handler(
     message: Message,
     state: FSMContext,
-    command: CommandObject,
+    poker: Poker,
+    engine: EngineRake01,
     redis: Redis,
     scheduler: AsyncIOScheduler,
+    pretty_card: PrettyCard,
 ) -> None:
     new_message = await message.answer(
         **Bold("Poker created. Wait until game starts.").as_kwargs()
     )
 
-    poker = Poker.model_validate_json(await redis.get(name=command.args))
-    engine = poker.engine.to_original()
-
-    joined_player = None
-    player_id = get_player_id(user=message.from_user)
-    engine.add_player(stack=BB_BET * BB_MULT, id=player_id)
-    for player in engine.players:
-        if player.id == player_id:
-            joined_player = player
-            player.parameters = {
-                "chat_id": new_message.chat.id,
-                "message_id": new_message.message_id,
-            }
-
-    await state.update_data(poker=command.args)
-    poker.engine = schema.EngineRake01.from_original(value=engine)
-
-    await redis.set(name=poker.id, value=poker.model_dump_json())
+    await state.update_data(poker=poker.id)
     await state.set_state(state=States.LOADING)
-
     scheduler.add_job(
         poker_chat_job,
         kwargs={
             "bot": message.bot,
-            "player": joined_player,
+            "player": engine.add_player(
+                stack=BB_BET * BB_MULT,
+                id=get_player_id(user=message.from_user),
+                parameters={
+                    "chat_id": new_message.chat.id,
+                    "message_id": new_message.message_id,
+                },
+            ),
             "poker": poker,
             "state": state,
             "redis": redis,
+            "pretty_card": pretty_card,
         },
         trigger="interval",
         id=get_id(),
@@ -73,7 +71,7 @@ async def start_deep_link_handler(
     )
 
 
-@router.message(CommandStart(deep_link=False))
+@router.message(CommandStart(deep_link=False), PokerFilter())
 async def start_handler(message: Message, state: FSMContext) -> None:
     await state.clear()
     await message.answer(
