@@ -7,12 +7,13 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from pokerengine.pretty_string import PrettyCard
 from redis.asyncio import Redis
 
+from core.settings import redis_settings
 from handlers import setup_handlers
 from middleware import PokerAutoSaverMiddleware
 
 
 def create_dispatcher() -> Dispatcher:
-    redis = Redis()
+    redis = Redis.from_url(url=redis_settings.REDIS_URL)
     scheduler = AsyncIOScheduler()
     storage = RedisStorage(redis=redis, key_builder=DefaultKeyBuilder(with_destiny=True))
     dispatcher = Dispatcher(

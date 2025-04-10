@@ -28,3 +28,10 @@ class BotSettings(BaseSettings):
 
 
 bot_settings = BotSettings()
+
+
+class RedisSettings(BaseSettings):
+    REDIS_URL: str
+
+
+redis_settings = RedisSettings()

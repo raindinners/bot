@@ -1,15 +1,15 @@
 version: "3.9"
 
 services:
-  fsm:
+  redis:
     image: redis:latest
     volumes:
-      - fsm_data:/data
+      - redis_data:/data
     command: redis-server --port ${REDIS_PORT} --save 20 1 --loglevel warning
     env_file:
       - ${PWD}/.env
     expose:
-      - ${FSM_PORT}
+      - ${REDIS_PORT}
     networks:
       - raindinners
     healthcheck:
@@ -20,4 +20,4 @@ services:
     restart: always
 
 volumes:
-  fsm_data:
+  redis_data:
