@@ -11,6 +11,7 @@ from pokerengine import schema
 from pokerengine.engine import EngineRake01, Player
 from pokerengine.enums import Action, Round
 from pokerengine.pretty_string import PrettyCard
+from aiogram.utils.text_decorations import markdown_decoration
 
 from callback_data import (
     ActionsCallbackData,
@@ -64,27 +65,29 @@ async def send_main_state_message(
 ) -> None:
     await bot.edit_message_text(
         **as_list(
-            as_section("Round", Text(engine.round.name.capitalize())),
+            as_section(Bold("Round"), Text(engine.round.name.capitalize())),
             as_section(
-                "Bets",
+                Bold("Bets"),
                 Text(f"Max: {Bold(engine.highest_bet).as_markdown()}"),
                 "\n",
                 Text(f"Total bets: {Bold(engine.pot).as_markdown()}"),
             ),
             as_section(
-                "Players",
-                Bold(f"Current: {engine.current_player.id}"),
+                Bold("Players"),
+                Bold(markdown_decoration.quote(f"Current: {engine.current_player.id}")),
                 "\n",
                 as_section(
                     "All players",
                     as_list(
                         *[
                             Text(
+                                markdown_decoration.quote(
                                 f"Name: {player.id},"
                                 f" stack: {player.stack},"
                                 f" bet: {player.bet},"
                                 f" round_bet: {player.round_bet},"
                                 f" state: {player.state.name.lower()}"
+                                )
                             )
                             for player in engine.players
                         ]
@@ -92,7 +95,7 @@ async def send_main_state_message(
                 ),
             ),
             as_section(
-                "Board",
+                Bold("Board"),
                 as_list(
                     *(
                         [
@@ -132,7 +135,7 @@ async def send_actions_state_message(
 ) -> None:
     await bot.edit_message_text(
         **as_section(
-            "Actions",
+            Bold("Actions"),
             Text(
                 f"Selected: {(Action(selected_action['action']).name.capitalize() + ', ' + str(selected_action['amount'])) if selected_action is not None else 'No action selected'}"
             ),
@@ -246,7 +249,7 @@ async def send_winners_message_broadcast(
             result = "lose by " + result
 
         player = poker.engine.players[index]  # noqa
-        texts.append(Text(f"Player {player.id} got {chips} chips and {result}"))
+        texts.append(Text(markdown_decoration.quote(f"Player {player.id} got {chips} chips and {result}")))
 
     engine = poker.engine.to_original()
     for player in poker.engine.players:
@@ -255,7 +258,7 @@ async def send_winners_message_broadcast(
                 *texts,
                 "\n",
                 as_section(
-                    "Board",
+                    Bold("Board"),
                     as_list(
                         *(
                             [

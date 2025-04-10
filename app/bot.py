@@ -63,7 +63,7 @@ async def setup_bot(bot: Bot) -> None:
 async def create_bot() -> Bot:
     bot = Bot(
         token=bot_settings.BOT_TOKEN,
-        default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN),
+        default=DefaultBotProperties(parse_mode=ParseMode.MARKDOWN_V2),
     )
     with suppress(TelegramAPIError):
         await setup_bot(bot=bot)

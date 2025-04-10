@@ -8,6 +8,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from pokerengine.engine import EngineRake01, PlayerAction
 from pokerengine.enums import Action, Position
+from pokerengine.pretty_string import PrettyCard
 
 from callback_data import ActionsCallbackData
 from core.poker.schema import Poker
@@ -31,8 +32,9 @@ async def actions_handler(
     state_data: Dict[str, Any],
     engine: EngineRake01,
 ) -> None:
-    if engine.terminal_state or engine.showdown:
+    if engine.showdown:
         await callback_query.answer(text="Unavailable")
+        return
 
     await send_actions_state_message(
         bot=callback_query.bot,
@@ -55,6 +57,7 @@ async def actions_done_handler(
     state_data: Dict[str, Any],
     poker: Poker,
     engine: EngineRake01,
+    pretty_card: PrettyCard,
 ) -> None:
     player = engine.current_player
 
@@ -69,7 +72,7 @@ async def actions_done_handler(
         )
     else:
         await send_main_state_message(
-            bot=callback_query.bot, engine=engine, cards=poker.cards, player=player
+            bot=callback_query.bot, engine=engine, cards=poker.cards, player=player, pretty_card=pretty_card
         )
 
     await state.set_state(state=States.MAIN)
