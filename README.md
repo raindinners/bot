@@ -76,7 +76,7 @@
 
 ```shell
 git clone https://github.com/pokerlost/bot && cd bot
-mv .env_dist .env  # edit your environment variables
+mv .env_dist .env  # edit your environment variables, also setup inline mode in @BotFather
 docker compose -f docker/compose/app.yml -f docker/comopse/redis.yml -f docker/compose/networks.yml up --build
 ```
 
