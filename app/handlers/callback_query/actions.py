@@ -72,7 +72,11 @@ async def actions_done_handler(
         )
     else:
         await send_main_state_message(
-            bot=callback_query.bot, engine=engine, cards=poker.cards, player=player, pretty_card=pretty_card
+            bot=callback_query.bot,
+            engine=engine,
+            cards=poker.cards,
+            player=player,
+            pretty_card=pretty_card,
         )
 
     await state.set_state(state=States.MAIN)

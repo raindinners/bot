@@ -1,10 +1,6 @@
 from __future__ import annotations
 
-from contextlib import suppress
-from typing import Any, Dict
-
-from aiogram import Router, Bot
-from aiogram.exceptions import TelegramBadRequest
+from aiogram import Bot, Router
 from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
@@ -22,10 +18,9 @@ from redis.asyncio import Redis
 
 from core.poker.core import poker_chat_job
 from core.poker.schema import Poker
-from filters import PokerFilter, StateDataUnpackerFilter
+from filters import PokerFilter
 from metadata import BB_BET, BB_MULT
 from states import States
-from utils.id import get_player_id
 from utils.inline_query import get_id
 
 router = Router()

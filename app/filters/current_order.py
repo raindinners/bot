@@ -8,8 +8,6 @@ from aiogram.types import TelegramObject, User
 from pokerengine.engine import EngineRake01
 from redis.asyncio import Redis
 
-from utils.id import get_player_id
-
 
 class CurrentOrderFilter(Filter):
     async def __call__(

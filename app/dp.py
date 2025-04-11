@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from aiogram import Dispatcher
-from aiogram.fsm.state import default_state
 from aiogram.fsm.storage.base import DefaultKeyBuilder, StorageKey
 from aiogram.fsm.storage.redis import RedisStorage
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -9,9 +8,7 @@ from pokerengine.pretty_string import PrettyCard
 from redis.asyncio import Redis
 
 from core.poker.schema import Poker
-from core.settings import redis_settings
 from handlers import setup_handlers
-from logger import logger
 from middleware import PokerAutoSaverMiddleware
 
 
@@ -34,7 +31,7 @@ def create_dispatcher() -> Dispatcher:
                     chat_id=int(player.parameters["chat_id"]),  # noqa
                     user_id=int(player.parameters["user_id"]),  # noqa
                 )
-                await storage.set_data(key=key, data=dict())
+                await storage.set_data(key=key, data={})
                 await storage.set_state(key=key)
             await redis.delete(name)
 

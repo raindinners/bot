@@ -7,11 +7,11 @@ from aiogram import Bot
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.deep_linking import create_start_link
 from aiogram.utils.formatting import Bold, Text, as_list, as_section
+from aiogram.utils.text_decorations import markdown_decoration
 from pokerengine import schema
 from pokerengine.engine import EngineRake01, Player
 from pokerengine.enums import Action, Round
 from pokerengine.pretty_string import PrettyCard
-from aiogram.utils.text_decorations import markdown_decoration
 
 from callback_data import (
     ActionsCallbackData,
@@ -74,7 +74,11 @@ async def send_main_state_message(
             ),
             as_section(
                 Bold("Players"),
-                Bold(markdown_decoration.quote(f"Current: {engine.current_player.parameters.get('name')}")),
+                Bold(
+                    markdown_decoration.quote(
+                        f"Current: {engine.current_player.parameters.get('name')}"
+                    )
+                ),
                 "\n",
                 as_section(
                     "All players",
@@ -82,11 +86,11 @@ async def send_main_state_message(
                         *[
                             Text(
                                 markdown_decoration.quote(
-                                f"Name: {player.parameters.get('name')},"
-                                f" stack: {player.stack},"
-                                f" bet: {player.bet},"
-                                f" round_bet: {player.round_bet},"
-                                f" state: {player.state.name.lower()}"
+                                    f"Name: {player.parameters.get('name')},"
+                                    f" stack: {player.stack},"
+                                    f" bet: {player.bet},"
+                                    f" round_bet: {player.round_bet},"
+                                    f" state: {player.state.name.lower()}"
                                 )
                             )
                             for player in engine.players
@@ -249,7 +253,13 @@ async def send_winners_message_broadcast(
             result = "lose by " + result
 
         player = poker.engine.players[index]  # noqa
-        texts.append(Text(markdown_decoration.quote(f"Player {player.parameters.get('name')} got {chips} chips and {result}")))
+        texts.append(
+            Text(
+                markdown_decoration.quote(
+                    f"Player {player.parameters.get('name')} got {chips} chips and {result}"
+                )
+            )
+        )
 
     engine = poker.engine.to_original()
     for player in poker.engine.players:

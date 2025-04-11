@@ -33,7 +33,9 @@ async def poker_handler(
         )
     )
 
-    poker = Poker(id=f"poker_{generate_id()}", engine=schema.EngineRake01.from_original(value=engine))
+    poker = Poker(
+        id=f"poker_{generate_id()}", engine=schema.EngineRake01.from_original(value=engine)
+    )
     await redis.set(name=poker.id, value=poker.model_dump_json())
 
     scheduler.add_job(

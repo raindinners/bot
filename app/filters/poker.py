@@ -8,7 +8,6 @@ from aiogram.types import TelegramObject
 from redis.asyncio import Redis
 
 from core.poker.schema import Poker
-from logger import logger
 
 
 class PokerFilter(Filter):
