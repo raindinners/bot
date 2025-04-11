@@ -22,10 +22,10 @@
 <summary>Table of Contents</summary>
 
 - [About](#about)
-  - [Built With](#built-with)
+    - [Built With](#built-with)
 - [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
 - [Usage](#usage)
 - [Support](#support)
 - [Contributing](#contributing)
@@ -38,27 +38,28 @@
 
 ## About
 
-> Telegram-bot that allows you to play poker variants of Texas Hold'em. It is able to create rooms, perform poker game action, find winners based on combinations and correctly divide the bank between them.
+> Telegram-bot that allows you to play poker variants of Texas Hold'em. It is able to create rooms, perform poker game
+> action, find winners based on combinations and correctly divide the bank between them.
 
 <details>
 <summary>Screenshots</summary>
 <br>
 
-|                                                     Start Page                                                     |                                                  Start Poker Page                                                  |
-|:------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------:|
-|                       <img src="docs/images/start_page.jpg" title="Start Page" width="100%">                       |                 <img src="docs/images/start_poker_page.jpg" title="Start Poker Page" width="100%">                 |
-|                                                    Create Page                                                     |                                                     Join Page                                                      |
-|                      <img src="docs/images/create_page.jpg" title="Create Page" width="100%">                      |                        <img src="docs/images/join_page.jpg" title="Join Page" width="100%">                        |
-|                                                Poker Starting Page                                                 |                                                 Main Preflop Page                                                  |
-|              <img src="docs/images/poker_starting_page.jpg" title="Poker Starting Page" width="100%">              |                <img src="docs/images/main_preflop_page.jpg" title="Main Preflop Page" width="100%">                |
-|                                                   Main Flop Pag                                                    |                                                     Cards Page                                                     |
-|                     <img src="docs/images/main_flop_page.jpg" title="Join Page" width="100%">                      |                       <img src="docs/images/cards_page.jpg" title="Cards Page" width="100%">                       |
-|                                                Actions Default Page                                                |                                                 Enter Amount Page                                                  |
-|             <img src="docs/images/actions_default_page.jpg" title="Actions Default Page" width="100%">             |                <img src="docs/images/enter_amount_page.jpg" title="Enter Amount Page" width="100%">                |
-|                                          Actions With Custom Amount Page                                           |                                          Actions With Custom Amount Page                                           |
-|  <img src="docs/images/actions_with_custom_amount_page.jpg" title="Actions With Custom Amount Page" width="100%">  |  <img src="docs/images/actions_with_custom_amount_page.jpg" title="Actions With Custom Amount Page" width="100%">  |
-|                                              Winners All Exited Page                                               |                                              Winners Combination Page                                              |
-|          <img src="docs/images/winners_all_exited_page.jpg" title="Winners All Exited Page" width="100%">          |                <img src="docs/images/winners_combination_page.jpg" title="Join Page" width="100%">                 |
+|                                                    Start Page                                                    |                                                 Start Poker Page                                                 |
+|:----------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------:|
+|                      <img src="docs/images/start_page.jpg" title="Start Page" width="100%">                      |                <img src="docs/images/start_poker_page.jpg" title="Start Poker Page" width="100%">                |
+|                                                   Create Page                                                    |                                                    Join Page                                                     |
+|                     <img src="docs/images/create_page.jpg" title="Create Page" width="100%">                     |                       <img src="docs/images/join_page.jpg" title="Join Page" width="100%">                       |
+|                                               Poker Starting Page                                                |                                                Main Preflop Page                                                 |
+|             <img src="docs/images/poker_starting_page.jpg" title="Poker Starting Page" width="100%">             |               <img src="docs/images/main_preflop_page.jpg" title="Main Preflop Page" width="100%">               |
+|                                                  Main Flop Page                                                  |                                                    Cards Page                                                    |
+|                    <img src="docs/images/main_flop_page.jpg" title="Join Page" width="100%">                     |                      <img src="docs/images/cards_page.jpg" title="Cards Page" width="100%">                      |
+|                                               Actions Default Page                                               |                                                Enter Amount Page                                                 |
+|            <img src="docs/images/actions_default_page.jpg" title="Actions Default Page" width="100%">            |               <img src="docs/images/enter_amount_page.jpg" title="Enter Amount Page" width="100%">               |
+|                                         Actions With Custom Amount Page                                          |                                         Actions With Custom Amount Page                                          |
+| <img src="docs/images/actions_with_custom_amount_page.jpg" title="Actions With Custom Amount Page" width="100%"> | <img src="docs/images/actions_with_custom_amount_page.jpg" title="Actions With Custom Amount Page" width="100%"> |
+|                                             Winners All Exited Page                                              |                                             Winners Combination Page                                             |
+|         <img src="docs/images/winners_all_exited_page.jpg" title="Winners All Exited Page" width="100%">         |               <img src="docs/images/winners_combination_page.jpg" title="Join Page" width="100%">                |
 
 </details>
 
