@@ -23,4 +23,4 @@ class CurrentOrderFilter(Filter):
         if event_from_user is None:
             return False
 
-        return get_player_id(user=event_from_user) == engine.current_player.id
+        return event_from_user.id == int(engine.current_player.id)

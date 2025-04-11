@@ -2,7 +2,7 @@
 name = "bot"
 version = "1.0a"
 description = "The bot service for poker."
-authors = ["raindinners"]
+authors = ["pokerlost"]
 license = "MIT"
 readme = "README.md"
 

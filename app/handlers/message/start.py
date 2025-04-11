@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from aiogram import Router
+from contextlib import suppress
+from typing import Any, Dict
+
+from aiogram import Router, Bot
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import default_state
@@ -18,7 +22,7 @@ from redis.asyncio import Redis
 
 from core.poker.core import poker_chat_job
 from core.poker.schema import Poker
-from filters import PokerFilter
+from filters import PokerFilter, StateDataUnpackerFilter
 from metadata import BB_BET, BB_MULT
 from states import States
 from utils.id import get_player_id
@@ -29,10 +33,12 @@ router = Router()
 
 @router.message(
     CommandStart(deep_link=True),
+    StateFilter(default_state),
     PokerFilter(),
 )
 async def start_deep_link_handler(
     message: Message,
+    bot: Bot,
     state: FSMContext,
     poker: Poker,
     engine: EngineRake01,
@@ -44,8 +50,6 @@ async def start_deep_link_handler(
         **Bold("Poker created. Wait until game starts.").as_kwargs()
     )
 
-    await state.clear()
-    await state.update_data(poker=poker.id)
     await state.set_state(state=States.LOADING)
     scheduler.add_job(
         poker_chat_job,
@@ -53,8 +57,11 @@ async def start_deep_link_handler(
             "bot": message.bot,
             "player": engine.add_player(
                 stack=BB_BET * BB_MULT,
-                id=get_player_id(user=message.from_user),
+                id=str(message.from_user.id),
                 parameters={
+                    "name": f"{len(poker.engine.players) + 1}: {message.from_user.full_name}",
+                    "user_id": message.from_user.id,
+                    "bot_id": bot.id,
                     "chat_id": new_message.chat.id,
                     "message_id": new_message.message_id,
                 },
@@ -71,9 +78,11 @@ async def start_deep_link_handler(
     )
 
 
-@router.message(CommandStart(deep_link=False))
-async def start_handler(message: Message, state: FSMContext) -> None:
-    await state.clear()
+@router.message(
+    CommandStart(deep_link=False),
+    StateFilter(default_state),
+)
+async def start_handler(message: Message) -> None:
     await message.answer(
         **Bold("Welcome to Poker!").as_kwargs(),
         reply_markup=InlineKeyboardMarkup(

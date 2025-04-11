@@ -74,7 +74,7 @@ async def send_main_state_message(
             ),
             as_section(
                 Bold("Players"),
-                Bold(markdown_decoration.quote(f"Current: {engine.current_player.id}")),
+                Bold(markdown_decoration.quote(f"Current: {engine.current_player.parameters.get('name')}")),
                 "\n",
                 as_section(
                     "All players",
@@ -82,7 +82,7 @@ async def send_main_state_message(
                         *[
                             Text(
                                 markdown_decoration.quote(
-                                f"Name: {player.id},"
+                                f"Name: {player.parameters.get('name')},"
                                 f" stack: {player.stack},"
                                 f" bet: {player.bet},"
                                 f" round_bet: {player.round_bet},"
@@ -249,7 +249,7 @@ async def send_winners_message_broadcast(
             result = "lose by " + result
 
         player = poker.engine.players[index]  # noqa
-        texts.append(Text(markdown_decoration.quote(f"Player {player.id} got {chips} chips and {result}")))
+        texts.append(Text(markdown_decoration.quote(f"Player {player.parameters.get('name')} got {chips} chips and {result}")))
 
     engine = poker.engine.to_original()
     for player in poker.engine.players:

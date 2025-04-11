@@ -11,7 +11,7 @@ services:
     expose:
       - ${REDIS_PORT}
     networks:
-      - raindinners
+      - pokerlost
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s

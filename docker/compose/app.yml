@@ -17,5 +17,5 @@ services:
       fsm:
         condition: service_healthy
     networks:
-      - raindinners
+      - pokerlost
     restart: always
