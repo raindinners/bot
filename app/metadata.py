@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Final
 
-URANDOM_SIZE: Final[int] = 16
+URANDOM_SIZE: Final[int] = 8
 """Using in function: `os.random` as `__size` argument."""
 
 SB_BET: Final[int] = 50

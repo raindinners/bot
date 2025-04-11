@@ -14,7 +14,7 @@ services:
     env_file:
       - ${PWD}/.env
     depends_on:
-      fsm:
+      redis:
         condition: service_healthy
     networks:
       - pokerlost

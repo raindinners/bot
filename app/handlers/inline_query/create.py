@@ -13,7 +13,7 @@ from aiogram.types import (
 from aiogram.utils.formatting import Text
 
 from callback_data import PokerCallbackData
-from utils.inline_query import get_id
+from utils.id import get_inline_query_id
 
 router = Router()
 
@@ -21,7 +21,7 @@ router = Router()
 async def get_results() -> List[Any]:
     return [
         InlineQueryResultArticle(
-            id=get_id(),
+            id=get_inline_query_id(),
             title="Poker",
             input_message_content=InputTextMessageContent(
                 **Text("Push down...").as_kwargs(text_key="message_text"),

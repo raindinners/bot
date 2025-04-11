@@ -65,7 +65,7 @@
 
 ### Built With
 
-> Python aiogram pydantic-settings apscheduler pokerengine
+> Python aiogram pydantic-settings apscheduler pokerengine ruff isort mypy black
 
 ## Getting Started
 
@@ -78,7 +78,7 @@
 ```shell
 git clone https://github.com/pokerlost/bot && cd bot
 mv .env_dist .env  # edit your environment variables, also setup inline mode in @BotFather
-docker compose -f docker/compose/app.yml -f docker/comopse/redis.yml -f docker/compose/networks.yml up --build
+docker compose -f docker/compose/app.yml -f docker/compose/redis.yml -f docker/compose/networks.yml --env-file .env up --build
 ```
 
 ## Usage

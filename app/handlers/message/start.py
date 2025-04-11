@@ -21,7 +21,7 @@ from core.poker.schema import Poker
 from filters import PokerFilter
 from metadata import BB_BET, BB_MULT
 from states import States
-from utils.inline_query import get_id
+from utils.id import generate_id, get_player_id
 
 router = Router()
 
@@ -52,7 +52,7 @@ async def start_deep_link_handler(
             "bot": message.bot,
             "player": engine.add_player(
                 stack=BB_BET * BB_MULT,
-                id=str(message.from_user.id),
+                id=str(get_player_id(user=message.from_user)),
                 parameters={
                     "name": f"{len(poker.engine.players) + 1}: {message.from_user.full_name}",
                     "user_id": message.from_user.id,
@@ -67,7 +67,7 @@ async def start_deep_link_handler(
             "pretty_card": pretty_card,
         },
         trigger="interval",
-        id=get_id(),
+        id=generate_id(),
         max_instances=1,
         seconds=1,
     )

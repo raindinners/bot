@@ -16,5 +16,5 @@ def get_inline_query_id() -> str:
     return str(random.uniform(MIN_ID_VALUE, MAX_ID_VALUE))
 
 
-def get_player_id(user: User) -> str:
-    return user.mention_markdown(name=user.full_name)
+def get_player_id(user: User) -> int:
+    return user.id
