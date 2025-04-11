@@ -18,7 +18,21 @@
   <a href="https://github.com/pokerlost/bot/issues/new?assignees=&labels=question&template=04_SUPPORT_QUESTION.md&title=support%3A+">Ask a Question</a>
 </div>
 
+<details open="open">
+<summary>Table of Contents</summary>
 
+- [About](#about)
+  - [Built With](#built-with)
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+- [Usage](#usage)
+- [Support](#support)
+- [Contributing](#contributing)
+- [Authors & contributors](#authors--contributors)
+- [License](#license)
+
+</details>
 
 ---
 
@@ -29,9 +43,6 @@
 <details>
 <summary>Screenshots</summary>
 <br>
-
-> **[?]**
-> Please provide your screenshots here.
 
 |                                                     Start Page                                                     |                                                  Start Poker Page                                                  |
 |:------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------:|
@@ -59,7 +70,6 @@
 
 ### Prerequisites
 
-> **[?]**
 > linux python3.1* docker
 
 ### Installation
@@ -73,16 +83,6 @@ docker compose -f docker/compose/app.yml -f docker/comopse/redis.yml -f docker/c
 ## Usage
 
 Go to Telegram linked bot and apply command `/start` of them.
-
-## Roadmap
-
-See the [open issues](https://github.com/pokerlost/bot/issues) for a list of proposed features (and known issues).
-
-- [Top Feature Requests](https://github.com/pokerlost/bot/issues?q=label%3Aenhancement+is%3Aopen+sort%3Areactions-%2B1-desc) (
-  Add your votes using the 👍 reaction)
-- [Top Bugs](https://github.com/pokerlost/bot/issues?q=is%3Aissue+is%3Aopen+label%3Abug+sort%3Areactions-%2B1-desc) (Add
-  your votes using the 👍 reaction)
-- [Newest Bugs](https://github.com/pokerlost/bot/issues?q=is%3Aopen+is%3Aissue+label%3Abug)
 
 ## Support
 
