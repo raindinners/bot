@@ -45,6 +45,7 @@ async def start_deep_link_handler(
         **Bold("Poker created. Wait until game starts.").as_kwargs()
     )
 
+    await state.update_data(poker=poker.id)
     await state.set_state(state=States.LOADING)
     scheduler.add_job(
         poker_chat_job,
@@ -75,9 +76,9 @@ async def start_deep_link_handler(
 
 @router.message(
     CommandStart(deep_link=False),
-    StateFilter(default_state),
 )
-async def start_handler(message: Message) -> None:
+async def start_handler(message: Message, state: FSMContext) -> None:
+    await state.clear()
     await message.answer(
         **Bold("Welcome to Poker!").as_kwargs(),
         reply_markup=InlineKeyboardMarkup(

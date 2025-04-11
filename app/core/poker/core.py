@@ -86,6 +86,7 @@ async def start(bot: Bot, poker: Poker) -> None:
         logger.debug("Skipping start: wrong state")
         return
 
+    poker.engine.players = [player for player in poker.engine.players if player.stack > 0]
     if not (MIN_PLAYERS <= len(poker.engine.players) <= MAX_PLAYERS):
         if poker.start_at or poker.winners_time:
             await send_loading_state_message_broadcast(
@@ -107,7 +108,6 @@ async def start(bot: Bot, poker: Poker) -> None:
         logger.debug("Skipping start game: wrong time")
         return
 
-    poker.engine.players = [player for player in poker.engine.players if player.stack]
     poker.seed = random.randint(RANDOM_MIN_VALUE, RANDOM_MAX_VALUE)
     poker.start()
 
