@@ -26,11 +26,7 @@ from utils.id import generate_id, get_player_id
 router = Router()
 
 
-@router.message(
-    CommandStart(deep_link=True),
-    StateFilter(default_state),
-    PokerFilter(),
-)
+@router.message(CommandStart(deep_link=True), StateFilter(default_state), PokerFilter())
 async def start_deep_link_handler(
     message: Message,
     bot: Bot,
@@ -74,9 +70,7 @@ async def start_deep_link_handler(
     )
 
 
-@router.message(
-    CommandStart(deep_link=False),
-)
+@router.message(CommandStart(deep_link=False))
 async def start_handler(message: Message, state: FSMContext) -> None:
     await state.clear()
     await message.answer(

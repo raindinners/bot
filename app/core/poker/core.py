@@ -7,6 +7,7 @@ from aiogram import Bot
 from aiogram.fsm.context import FSMContext
 from pokerengine.constants import MAX_PLAYERS, MIN_PLAYERS
 from pokerengine.engine import Player
+from pokerengine.enums import Action
 from pokerengine.pretty_string import PrettyCard
 from pokerengine.schema import EngineRake01
 from redis.asyncio import Redis
@@ -18,6 +19,7 @@ from messages import (
     send_winners_message_broadcast,
 )
 from metadata import (
+    POKER_AUTO_ACTION_TIME,
     POKER_START_TIME,
     POKER_WINNERS_TIME,
     RANDOM_MAX_VALUE,
@@ -31,6 +33,7 @@ from .schema import Poker
 async def poker_main_job_core(bot: Bot, poker: Poker, pretty_card: PrettyCard) -> None:
     await start(bot=bot, poker=poker)
     await winners(bot=bot, poker=poker, pretty_card=pretty_card)
+    auto_action(poker=poker)
 
 
 async def poker_main_job(
@@ -112,6 +115,38 @@ async def start(bot: Bot, poker: Poker) -> None:
     poker.start()
 
 
+def auto_action(poker: Poker) -> None:
+    if not poker.started or poker.winners_time:
+        logger.debug("Skipping auto action: wrong state")
+        return
+
+    if not poker.auto_action_time:
+        poker.auto_action_time = time.time() + POKER_AUTO_ACTION_TIME
+
+        for player in poker.engine.players:
+            player.parameters = {**player.parameters, "need_refresh": True}
+
+    if time.time() < poker.auto_action_time:
+        logger.debug("Skipping auto action: wrong time")
+        return
+
+    engine = poker.engine.to_original()
+    found_action = None
+    for action in engine.possible_actions:
+        if action.action == Action.CHECK:
+            found_action = action
+        if action.action == Action.FOLD:
+            found_action = action
+
+    if not found_action:
+        logger.critical("Skipping auto action: action to execute wasn't found!")
+        return
+
+    engine.execute(player_action=found_action)
+    poker.engine = EngineRake01.from_original(value=engine)
+    poker.auto_action_time = None
+
+
 async def winners(
     bot: Bot,
     poker: Poker,
@@ -160,12 +195,19 @@ async def poker_chat_updater(
         or int(last_round) != engine.round.value  # noqa
         or last_player_id is None
         or last_player_id != engine.current_player.id
+        or player.parameters.get("need_refresh", False)
     ):
         player.parameters = {
             **player.parameters,
             "last_round": engine.round.value,
             "last_player_id": engine.current_player.id,
+            "need_refresh": False,
         }
         await send_main_state_message(
-            bot=bot, engine=engine, cards=poker.cards, player=player, pretty_card=pretty_card
+            bot=bot,
+            poker=poker,
+            engine=engine,
+            cards=poker.cards,
+            player=player,
+            pretty_card=pretty_card,
         )

@@ -15,12 +15,14 @@ class Poker(BaseModel):
     seed: int = 1927
     started: bool = False
     start_at: Optional[float] = None
+    auto_action_time: Optional[float] = None
     winners_time: Optional[float] = None
     cards: Optional[Cards] = None
 
     def start(self) -> None:
         self.started = True
         self.start_at = None
+        self.auto_action_time = None
         self.winners_time = None
 
         engine = self.engine.to_original()
@@ -38,6 +40,7 @@ class Poker(BaseModel):
     def stop(self) -> None:
         self.started = False
         self.start_at = None
+        self.auto_action_time = None
         self.winners_time = None
 
         engine = self.engine.to_original()

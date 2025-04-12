@@ -61,7 +61,12 @@ async def send_loading_state_message_broadcast(
 
 
 async def send_main_state_message(
-    bot: Bot, engine: EngineRake01, cards: schema.Cards, player: Player, pretty_card: PrettyCard
+    bot: Bot,
+    poker: Poker,
+    engine: EngineRake01,
+    cards: schema.Cards,
+    player: Player,
+    pretty_card: PrettyCard,
 ) -> None:
     await bot.edit_message_text(
         **as_list(
@@ -74,12 +79,21 @@ async def send_main_state_message(
             ),
             as_section(
                 Bold("Players"),
-                Bold(
-                    markdown_decoration.quote(
-                        f"Current: {engine.current_player.parameters.get('name')}"
-                    )
+                as_list(
+                    Bold(
+                        markdown_decoration.quote(
+                            f"Current: {engine.current_player.parameters.get('name')}"
+                        )
+                    ),
+                    Bold(
+                        markdown_decoration.quote(
+                            f"Auto action will execute in {int(poker.auto_action_time - time.time())} seconds"
+                            if poker.auto_action_time
+                            else "No auto action present"
+                        )
+                    ),
                 ),
-                "\n",
+                "\n\n",
                 as_section(
                     "All players",
                     as_list(
