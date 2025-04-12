@@ -24,7 +24,6 @@ def create_dispatcher() -> Dispatcher:
     async def startup_remove_poker() -> None:
         async for name in redis.scan_iter(match="poker_*"):
             poker = Poker.model_validate_json(await redis.get(name=name))
-
             for player in poker.engine.players:
                 key = StorageKey(
                     bot_id=int(player.parameters["bot_id"]),  # noqa

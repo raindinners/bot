@@ -23,6 +23,7 @@ class PokerFilter(Filter):
         name = data.get("poker", None)
         if command and command.args:
             name = command.args
+
         if name is None:
             return False
 

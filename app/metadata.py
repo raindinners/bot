@@ -20,6 +20,8 @@ MAX_ID_VALUE: Final[int] = 2**32
 POKER_START_TIME: Final[int] = 1
 """Start game after time (in seconds)."""
 
+POKER_AUTO_ACTION_TIME: Final[int] = 15
+
 POKER_WINNERS_TIME: Final[int] = 10
 """How many time winners will be displaying (in seconds)."""
 

@@ -26,11 +26,7 @@ from utils.id import generate_id, get_player_id
 router = Router()
 
 
-@router.message(
-    CommandStart(deep_link=True),
-    StateFilter(default_state),
-    PokerFilter(),
-)
+@router.message(CommandStart(deep_link=True), StateFilter(default_state), PokerFilter())
 async def start_deep_link_handler(
     message: Message,
     bot: Bot,
@@ -45,6 +41,7 @@ async def start_deep_link_handler(
         **Bold("Poker created. Wait until game starts.").as_kwargs()
     )
 
+    await state.update_data(poker=poker.id)
     await state.set_state(state=States.LOADING)
     scheduler.add_job(
         poker_chat_job,
@@ -73,11 +70,9 @@ async def start_deep_link_handler(
     )
 
 
-@router.message(
-    CommandStart(deep_link=False),
-    StateFilter(default_state),
-)
-async def start_handler(message: Message) -> None:
+@router.message(CommandStart(deep_link=False))
+async def start_handler(message: Message, state: FSMContext) -> None:
+    await state.clear()
     await message.answer(
         **Bold("Welcome to Poker!").as_kwargs(),
         reply_markup=InlineKeyboardMarkup(
