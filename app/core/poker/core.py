@@ -3,21 +3,14 @@ from __future__ import annotations
 import random
 import time
 
-from aiogram import Bot
 from aiogram.fsm.context import FSMContext
 from pokerengine.constants import MAX_PLAYERS, MIN_PLAYERS
-from pokerengine.engine import Player
 from pokerengine.enums import Action
-from pokerengine.pretty_string import PrettyCard
 from pokerengine.schema import EngineRake01
 from redis.asyncio import Redis
 
 from logger import logger
-from messages import (
-    send_loading_state_message_broadcast,
-    send_main_state_message,
-    send_winners_message_broadcast,
-)
+from messages import Messages
 from metadata import (
     POKER_AUTO_ACTION_TIME,
     POKER_START_TIME,
@@ -30,57 +23,48 @@ from states import States
 from .schema import Poker
 
 
-async def poker_main_job_core(bot: Bot, poker: Poker, pretty_card: PrettyCard) -> None:
-    await start(bot=bot, poker=poker)
-    await winners(bot=bot, poker=poker, pretty_card=pretty_card)
+async def poker_main_job_core(poker: Poker, messages: Messages) -> None:
+    await start(poker=poker, messages=messages)
+    await winners(poker=poker, messages=messages)
     auto_action(poker=poker)
 
 
 async def poker_main_job(
-    bot: Bot,
     poker: Poker,
     redis: Redis,
-    pretty_card: PrettyCard,
+    messages: Messages,
 ) -> None:
     _poker = Poker.model_validate_json(await redis.get(name=poker.id))
 
     try:
-        await poker_main_job_core(bot=bot, poker=_poker, pretty_card=pretty_card)
+        await poker_main_job_core(poker=_poker, messages=messages)
     except Exception as exc:
         logger.exception(exc)
 
     await redis.set(name=poker.id, value=_poker.model_dump_json())
 
 
-async def poker_chat_job_core(
-    bot: Bot, poker: Poker, player: Player, state: FSMContext, pretty_card: PrettyCard
-) -> None:
-    await poker_chat_updater(
-        bot=bot, poker=poker, player=player, state=state, pretty_card=pretty_card
-    )
+async def poker_chat_job_core(poker: Poker, state: FSMContext, messages: Messages) -> None:
+    await poker_chat_updater(poker=poker, state=state, messages=messages)
 
 
 async def poker_chat_job(
-    bot: Bot,
     poker: Poker,
-    player: Player,
     state: FSMContext,
     redis: Redis,
-    pretty_card: PrettyCard,
+    messages: Messages,
 ) -> None:
     _poker = Poker.model_validate_json(await redis.get(name=poker.id))
 
     try:
-        await poker_chat_job_core(
-            bot=bot, poker=_poker, player=player, state=state, pretty_card=pretty_card
-        )
+        await poker_chat_job_core(poker=_poker, state=state, messages=messages)
     except Exception as exc:
         logger.exception(exc)
 
     await redis.set(name=poker.id, value=_poker.model_dump_json())
 
 
-async def start(bot: Bot, poker: Poker) -> None:
+async def start(poker: Poker, messages: Messages) -> None:
     if poker.started:
         logger.debug("Skipping start: wrong state")
         return
@@ -92,8 +76,8 @@ async def start(bot: Bot, poker: Poker) -> None:
     poker.engine.players = [player for player in poker.engine.players if player.stack > 0]
     if not (MIN_PLAYERS <= len(poker.engine.players) <= MAX_PLAYERS):
         if poker.start_at or poker.winners_time:
-            await send_loading_state_message_broadcast(
-                bot=bot, players=poker.engine.players, is_stopped=True
+            await messages.send_loading_state_broadcast(
+                players=poker.engine.players, is_stopped=True
             )
 
         poker.stop()
@@ -103,13 +87,16 @@ async def start(bot: Bot, poker: Poker) -> None:
 
     if not poker.start_at:
         poker.start_at = time.time() + POKER_START_TIME
-        await send_loading_state_message_broadcast(
-            bot=bot, players=poker.engine.players, start_at=poker.start_at
+        await messages.send_loading_state_broadcast(
+            players=poker.engine.players, start_at=poker.start_at
         )
 
     if time.time() < poker.start_at:
         logger.debug("Skipping start game: wrong time")
         return
+
+    for player in poker.engine.players:
+        await messages.send_main_state_keyboard()
 
     poker.seed = random.randint(RANDOM_MIN_VALUE, RANDOM_MAX_VALUE)
     poker.start()
@@ -122,9 +109,6 @@ def auto_action(poker: Poker) -> None:
 
     if not poker.auto_action_time:
         poker.auto_action_time = time.time() + POKER_AUTO_ACTION_TIME
-
-        for player in poker.engine.players:
-            player.parameters = {**player.parameters, "need_refresh": True}
 
     if time.time() < poker.auto_action_time:
         logger.debug("Skipping auto action: wrong time")
@@ -147,47 +131,44 @@ def auto_action(poker: Poker) -> None:
     poker.auto_action_time = None
 
 
-async def winners(
-    bot: Bot,
-    poker: Poker,
-    pretty_card: PrettyCard,
-) -> None:
+async def winners(poker: Poker, messages: Messages) -> None:
     engine = poker.engine.to_original()
     if not poker.started or not engine.showdown or poker.winners_time:
         logger.debug("Skipping winners: wrong state")
         return
 
-    await send_winners_message_broadcast(
-        bot=bot,
+    await messages.send_winners_broadcast(
         poker=poker,
         response=(
             [(str(result), stack) for result, stack in engine.pay(cards=poker.cards.to_original())]
             if engine.terminal_state
             else engine.pay_noshowdown()
         ),
-        pretty_card=pretty_card,
     )
+    await messages.send_winners_keyboard_broadcast(poker=poker)
 
     poker.started = False
     poker.engine = EngineRake01.from_original(value=engine)
     poker.winners_time = time.time() + POKER_WINNERS_TIME
 
 
-async def poker_chat_updater(
-    bot: Bot, poker: Poker, player: Player, state: FSMContext, pretty_card: PrettyCard
-) -> None:
+async def poker_chat_updater(poker: Poker, state: FSMContext, messages: Messages) -> None:
     engine = poker.engine.to_original()
     if not poker.started or engine.showdown:
-        player.parameters = {**player.parameters, "last_round": None, "last_player_id": None}
+        messages.player.parameters = {
+            **messages.player.parameters,
+            "last_round": None,
+            "last_player_id": None,
+        }
         return
 
     current_state = await state.get_state()
     if current_state not in [States.LOADING.state, States.MAIN.state]:
         return
 
-    last_round, last_player_id = player.parameters.get("last_round", None), player.parameters.get(
-        "last_player_id", None
-    )
+    last_round, last_player_id = messages.player.parameters.get(
+        "last_round", None
+    ), messages.player.parameters.get("last_player_id", None)
     await state.set_state(state=States.MAIN)
     engine = poker.engine.to_original()
     if (
@@ -195,19 +176,10 @@ async def poker_chat_updater(
         or int(last_round) != engine.round.value  # noqa
         or last_player_id is None
         or last_player_id != engine.current_player.id
-        or player.parameters.get("need_refresh", False)
     ):
-        player.parameters = {
-            **player.parameters,
+        messages.player.parameters = {
+            **messages.player.parameters,
             "last_round": engine.round.value,
             "last_player_id": engine.current_player.id,
-            "need_refresh": False,
         }
-        await send_main_state_message(
-            bot=bot,
-            poker=poker,
-            engine=engine,
-            cards=poker.cards,
-            player=player,
-            pretty_card=pretty_card,
-        )
+        await messages.send_main_state(poker=poker, engine=engine, cards=poker.cards)

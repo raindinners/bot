@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from aiogram import Router
+from aiogram import Bot, Router
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
@@ -10,7 +10,7 @@ from pokerengine.engine import EngineRake01
 
 from callback_data import PinCallbackData
 from filters import CurrentOrderFilter, PokerFilter, StateDataUnpackerFilter
-from messages import send_actions_state_message
+from messages import Messages
 from states import States
 
 router = Router()
@@ -25,6 +25,7 @@ router = Router()
 )
 async def pin_handler(
     callback_query: CallbackQuery,
+    bot: Bot,
     callback_data: PinCallbackData,
     state: FSMContext,
     state_data: Dict[str, Any],
@@ -56,9 +57,10 @@ async def pin_handler(
                 await callback_query.answer(text="Invalid amount entered, retype.")
                 return
             await state.set_state(state=States.ACTIONS)
-            await send_actions_state_message(
-                bot=callback_query.bot, engine=engine, selected_action=selected_action
-            )
+            messages = Messages(bot=bot)
+            await messages.send_actions_state(engine=engine, selected_action=selected_action)
+            await messages.send_actions_state_keyboard(engine=engine)
+
             return
 
     await callback_query.answer(text=f"Amount: {selected_action['amount']}")

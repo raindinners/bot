@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from aiogram import Router
+from aiogram import Bot, Router
 from aiogram.filters import StateFilter
 from aiogram.fsm.state import any_state
 from aiogram.types import CallbackQuery
@@ -13,7 +13,7 @@ from redis.asyncio import Redis
 from callback_data import PokerCallbackData
 from core.poker.core import poker_main_job
 from core.poker.schema import Poker
-from messages import send_join_message
+from messages import Messages
 from metadata import BB_BET, BB_MULT, MIN_RAISE, SB_BET
 from utils.id import generate_id
 
@@ -23,6 +23,7 @@ router = Router()
 @router.callback_query(PokerCallbackData.filter(), StateFilter(any_state))
 async def poker_handler(
     callback_query: CallbackQuery,
+    bot: Bot,
     redis: Redis,
     scheduler: AsyncIOScheduler,
     pretty_card: PrettyCard,
@@ -38,22 +39,19 @@ async def poker_handler(
     )
     await redis.set(name=poker.id, value=poker.model_dump_json())
 
+    messages = Messages(
+        bot=bot,
+        poker_id=poker.id,
+        inline_message_id=callback_query.inline_message_id,
+        pretty_card=pretty_card,
+    )
     scheduler.add_job(
         poker_main_job,
-        kwargs={
-            "bot": callback_query.bot,
-            "poker": poker,
-            "redis": redis,
-            "pretty_card": pretty_card,
-        },
+        kwargs={"poker": poker, "redis": redis, "messages": messages},
         trigger="interval",
         id=poker.id,
         max_instances=1,
         seconds=1,
     )
-
-    await send_join_message(
-        bot=callback_query.bot,
-        inline_message_id=callback_query.inline_message_id,
-        poker_id=poker.id,
-    )
+    await messages.send_join()
+    await messages.send_join_keyboard()

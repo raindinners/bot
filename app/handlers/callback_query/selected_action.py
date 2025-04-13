@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from aiogram import F, Router
+from aiogram import Bot, F, Router
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
@@ -10,7 +10,7 @@ from pokerengine.enums import Action, Position
 
 from callback_data import SelectActionCallbackData
 from filters import CurrentOrderFilter, PokerFilter
-from messages import send_actions_state_message, send_pin_state_message
+from messages import Messages
 from states import States
 
 router = Router()
@@ -32,6 +32,7 @@ router = Router()
 )
 async def select_action_no_amount_handler(
     callback_query: CallbackQuery,
+    bot: Bot,
     callback_data: SelectActionCallbackData,
     state: FSMContext,
     engine: EngineRake01,
@@ -45,10 +46,9 @@ async def select_action_no_amount_handler(
         }
     )
 
-    await send_actions_state_message(
-        bot=callback_query.bot,
-        engine=engine,
-        selected_action=(await state.get_data())["selected_action"],
+    messages = Messages(bot=bot)
+    await messages.send_actions_state(
+        engine=engine, selected_action=(await state.get_data())["selected_action"]
     )
     await callback_query.answer(
         text=f"Action: {Action(callback_data.action).name.capitalize()} successfully selected."
@@ -65,6 +65,7 @@ async def select_action_no_amount_handler(
 )
 async def select_action_with_amount_handler(
     callback_query: CallbackQuery,
+    bot: Bot,
     callback_data: SelectActionCallbackData,
     state: FSMContext,
     engine: EngineRake01,
@@ -78,7 +79,9 @@ async def select_action_with_amount_handler(
         }
     )
 
-    await send_pin_state_message(bot=callback_query.bot, engine=engine)
+    messages = Messages(bot=bot)
+    await messages.send_pin_state(engine=engine)
+    await messages.send_pin_state_keyboard(engine=engine)
     await callback_query.answer(
         text=f"Action: {Action(callback_data.action).name.capitalize()} successfully selected, provide amount."
     )

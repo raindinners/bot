@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from aiogram import F, Router
+from aiogram import Bot, F, Router
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
@@ -13,7 +13,7 @@ from pokerengine.pretty_string import PrettyCard
 from callback_data import ActionsCallbackData
 from core.poker.schema import Poker
 from filters import CurrentOrderFilter, PokerFilter, StateDataUnpackerFilter
-from messages import send_actions_state_message, send_main_state_message
+from messages import Messages
 from states import States
 
 router = Router()
@@ -28,6 +28,7 @@ router = Router()
 )
 async def actions_handler(
     callback_query: CallbackQuery,
+    bot: Bot,
     state: FSMContext,
     state_data: Dict[str, Any],
     engine: EngineRake01,
@@ -36,11 +37,10 @@ async def actions_handler(
         await callback_query.answer(text="Unavailable")
         return
 
-    await send_actions_state_message(
-        bot=callback_query.bot,
-        engine=engine,
-        selected_action=state_data.get("selected_action", None),  # noqa
-    )
+    messages = Messages(bot=bot)
+    await messages.send_actions_state(
+        engine=engine, selected_action=state_data.get("selected_action", None)
+    )  # noqa
     await state.set_state(state=States.ACTIONS)
 
 
@@ -53,6 +53,7 @@ async def actions_handler(
 )
 async def actions_done_handler(
     callback_query: CallbackQuery,
+    bot: Bot,
     state: FSMContext,
     state_data: Dict[str, Any],
     poker: Poker,
@@ -71,13 +72,8 @@ async def actions_done_handler(
             )
         )
     else:
-        await send_main_state_message(
-            bot=callback_query.bot,
-            poker=poker,
-            engine=engine,
-            cards=poker.cards,
-            player=player,
-            pretty_card=pretty_card,
-        )
+        messages = Messages(bot=bot, pretty_card=pretty_card, player=player)
+        await messages.send_main_state(poker=poker, engine=engine, cards=poker.cards)
+        await messages.send_main_state_keyboard()
 
     await state.set_state(state=States.MAIN)

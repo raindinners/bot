@@ -12,7 +12,7 @@ python-dotenv = "^1.0.0"
 apscheduler = "^3.10.4"
 pydantic-settings = "^2.0.3"
 aiogram = {extras = ["redis"], version = "^3.1.1"}
-pokerengine = "^1.9.5"
+pokerengine = "^1.9.7"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.2.2"
@@ -51,10 +51,3 @@ exclude = '''
 [tool.isort]
 profile = "black"
 src_paths = ["app"]
-
-[tool.mypy]
-plugins = ["pydantic.mypy"]
-disable_error_code = ["import"]
-show_error_codes = true
-show_error_context = true
-namespace_packages = true

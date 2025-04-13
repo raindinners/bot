@@ -19,6 +19,7 @@ from redis.asyncio import Redis
 from core.poker.core import poker_chat_job
 from core.poker.schema import Poker
 from filters import PokerFilter
+from messages import Messages
 from metadata import BB_BET, BB_MULT
 from states import States
 from utils.id import generate_id, get_player_id
@@ -46,22 +47,24 @@ async def start_deep_link_handler(
     scheduler.add_job(
         poker_chat_job,
         kwargs={
-            "bot": message.bot,
-            "player": engine.add_player(
-                stack=BB_BET * BB_MULT,
-                id=str(get_player_id(user=message.from_user)),
-                parameters={
-                    "name": f"{len(poker.engine.players) + 1}: {message.from_user.full_name}",
-                    "user_id": message.from_user.id,
-                    "bot_id": bot.id,
-                    "chat_id": new_message.chat.id,
-                    "message_id": new_message.message_id,
-                },
-            ),
             "poker": poker,
             "state": state,
             "redis": redis,
-            "pretty_card": pretty_card,
+            "messages": Messages(
+                bot=bot,
+                pretty_card=pretty_card,
+                player=engine.add_player(
+                    stack=BB_BET * BB_MULT,
+                    id=str(get_player_id(user=message.from_user)),
+                    parameters={
+                        "name": f"{len(poker.engine.players) + 1}: {message.from_user.full_name}",
+                        "user_id": message.from_user.id,
+                        "bot_id": bot.id,
+                        "chat_id": new_message.chat.id,
+                        "message_id": new_message.message_id,
+                    },
+                ),
+            ),
         },
         trigger="interval",
         id=generate_id(),
