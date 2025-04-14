@@ -18,7 +18,7 @@ pokerengine = "^1.9.7"
 pre-commit = "^3.2.2"
 black = "^23.3.0"
 ruff = "^0.0.287"
-isort = "^5.12.0"
+isort = "^6.0.1"
 mypy = "^1.2.0"
 
 [tool.ruff]
