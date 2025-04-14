@@ -15,7 +15,7 @@ aiogram = {extras = ["redis"], version = "^3.1.1"}
 pokerengine = "^1.9.7"
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^3.2.2"
+pre-commit = "^4.2.0"
 black = "^23.3.0"
 ruff = "^0.0.287"
 isort = "^5.12.0"
